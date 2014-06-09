@@ -184,14 +184,8 @@
 
       ;;print the numbers
       (dotimes (col *2048-columns*)
-        (let* ((current-value (2048-get-cell row col))
-               (printable-value (2048-num-to-printable current-value))
-               (face (2048-get-face current-value)))
-          (insert (format "|%5s  " current-value))
-          (add-text-properties (- (point) 7)
-                               (point)
-                               (list 'font-lock-face
-                                     face))))
+        (let ((current-value (2048-num-to-printable (2048-get-cell row col))))
+          (insert (format "|%5s  " current-value))))
       (insert "|")
       (insert "\n")
 
@@ -204,41 +198,6 @@
     (dotimes (col *2048-columns*)
       (insert "+-------"))
     (insert "+")))
-
-(defface 2048-0-face '((t (:foreground "white"))) "Face used for 0" :group '2048-game)
-(defface 2048-2-face '((t (:foreground "dim grey" :bold t))) "Face used for 2" :group '2048-game)
-(defface 2048-4-face '((t (:foreground "burlywood4" :bold t))) "Face used for 4" :group '2048-game)
-(defface 2048-8-face '((t (:foreground "orange3" :bold t))) "Face used for 8" :group '2048-game)
-(defface 2048-16-face '((t (:foreground "DarkOrange4" :bold t))) "Face used for 16" :group '2048-game)
-(defface 2048-32-face '((t (:foreground "orange red" :bold t))) "Face used for 32" :group '2048-game)
-(defface 2048-64-face '((t (:foreground "firebrock" :bold t))) "Face used for 64" :group '2048-game)
-(defface 2048-128-face '((t (:foreground "purple" :bold t))) "Face used for 128" :group '2048-game)
-(defface 2048-256-face '((t (:foreground "dark magenta" :bold t))) "Face used for 256" :group '2048-game)
-(defface 2048-512-face '((t (:foreground "gold3" :bold t))) "Face used for 512" :group '2048-game)
-(defface 2048-1024-face '((t (:foreground "yellow4" :bold t))) "Face used for 1024" :group '2048-game)
-(defface 2048-2048-face '((t (:foreground "gold4" :bold t))) "Face used for 2048" :group '2048-game)
-
-(defvar *2048-faces*
-  "A mapping between the number and the face to display that number with.
-This is for use with 2048-get-face.")
-
-(setq *2048-faces*
-              (let ((table (make-hash-table)))
-                (puthash 0 '2048-0-face table)
-                (puthash 2 '2048-2-face table)
-                (puthash 4 '2048-4-face table)
-                (puthash 8 '2048-8-face table)
-                (puthash 16 '2048-16-face table)
-                (puthash 32 '2048-32-face table)
-                (puthash 64 '2048-64-face table)
-                (puthash 128 '2048-128-face table)
-                (puthash 512 '2048-512-face table)
-                (puthash 1024 '2048-1024-face table)
-                (puthash 2048 '2048-2048-face table)
-                table))
-
-(defun 2048-get-face (value)
-  (gethash value *2048-faces*))
 
 (defun 2048-move (from-row from-column delta-row delta-column)
   "Tries to move the number in (from-row, from-column) to (to-row, to-column).
