@@ -91,6 +91,36 @@
   "Return symbol of the variable holding tile for number N"
   (intern (concat "2048-tile-" (int-to-string n))))
 
+(defmacro 2048-for (var init end &rest body)
+  "Helper function. executes 'body repeatedly, with 'var assigned values starting at 'init, and ending at 'end, increasing by one each iteration."
+  `(let ((,var ,init)
+	 (end-val ,end))
+     (while (<= ,var end-val)
+       ,@body
+       (setq ,var (1+ ,var)))))
+
+(defmacro 2048-for-down (var init end &rest body)
+  "Helper function, executes 'body repeatedly, with 'var assigned values starting at 'init, and ending at 'end, decreasing by one each iteration."
+  `(let ((,var ,init)
+	 (end-val ,end))
+     (while (>= ,var end-val)
+       ,@body
+       (setq ,var (1- ,var)))))
+
+(defmacro 2048-game-move (&rest body)
+  `(progn (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
+                                               nil))
+
+          ,@body
+          (2048-print-board)
+          (2048-check-game-end)))
+
+(defmacro 2048-debug (&rest body)
+  "If *2048-debug* is 't, log ,@body as a string to the buffer named '2048-debug'"
+  `(when *2048-debug*
+     (print (concat ,@body)
+	    (get-buffer-create "2048-debug"))))
+
 (defun 2048-init-tiles ()
   "Init each variable 2048-empty-N and 2048-tile-N with appropriate string and face"
   (mapc #'(lambda (num)
@@ -347,36 +377,6 @@
                                                   has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
-
-(defmacro 2048-for (var init end &rest body)
-  "Helper function. executes 'body repeatedly, with 'var assigned values starting at 'init, and ending at 'end, increasing by one each iteration."
-  `(let ((,var ,init)
-	 (end-val ,end))
-     (while (<= ,var end-val)
-       ,@body
-       (setq ,var (1+ ,var)))))
-
-(defmacro 2048-for-down (var init end &rest body)
-  "Helper function, executes 'body repeatedly, with 'var assigned values starting at 'init, and ending at 'end, decreasing by one each iteration."
-  `(let ((,var ,init)
-	 (end-val ,end))
-     (while (>= ,var end-val)
-       ,@body
-       (setq ,var (1- ,var)))))
-
-(defmacro 2048-game-move (&rest body)
-  `(progn (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
-                                               nil))
-
-          ,@body
-          (2048-print-board)
-          (2048-check-game-end)))
-
-(defmacro 2048-debug (&rest body)
-  "If *2048-debug* is 't, log ,@body as a string to the buffer named '2048-debug'"
-  `(when *2048-debug*
-     (print (concat ,@body)
-	    (get-buffer-create "2048-debug"))))
 
 (provide '2048-game)
 ;;; 2048.el ends here
