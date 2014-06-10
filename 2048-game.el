@@ -114,6 +114,7 @@ TODO: find out the actual scoring rules of the 2048 game.")
         (*2048-score* 123456))
     (switch-to-buffer "2048-test")
     (2048-init-tiles)
+    (2048-mode)
     (2048-print-board)))
 
 (defun 2048-init ()
