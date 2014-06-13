@@ -158,7 +158,8 @@
   (2048-insert-random-cell)
   (2048-insert-random-cell)
   (2048-init-tiles)
-  (2048-print-board))
+  (2048-print-board)
+  (message "Good luck!"))
 
 (defun 2048-get-cell (row col)
   "Gets the value in (row, col)."
@@ -210,9 +211,11 @@
 (defun 2048-check-game-end ()
   "Checks whether the game has either been won or lost. If so, it handles notifying and restarting."
   (cond ((2048-game-was-won)
-         (message "yay!"))
+         (when (y-or-n-p "Yay! You beat the game! Want to push your luck?")
+           (2048-init)))
         ((2048-game-was-lost)
-         (message "boo!"))))
+         (when (y-or-n-p "Aw, too bad. You lost. Want to play again?")
+           (2048-init)))))
 
 (defun 2048-game-was-won ()
   "Returns t if the game was won, nil otherwise."
