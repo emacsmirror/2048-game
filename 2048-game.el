@@ -56,8 +56,8 @@
 (defvar *2048-rows* 4
   "The height of the board. It could be customized, if you wanted to make the game very very tall, or very very short.")
 
-(defvar *2048-random-4-threshold* 90
-  "When a new number is inserted into the board, insert a 4 if (>= (random 100) *2048-random-4-threshold*). Otherwise, 2.")
+(defvar *2048-possible-values-to-insert* (cons 4 (make-list 9 2))
+  "When a new element is inserted into the board, randomly choose a number from this sequence.")
 
 (defvar *2048-victory-value* 2048
   "When this number is reached, the user wins! Yay!")
@@ -196,10 +196,8 @@
 
 (defun 2048-insert-random-cell ()
   "Picks a number randomly, and inserts it into a random cell."
-  (let ((number-to-insert (if (>= (random 100)
-                                  *2048-random-4-threshold*)
-                              4
-                            2))
+  (let ((number-to-insert (elt *2048-possible-values-to-insert*
+                               (random (length *2048-possible-values-to-insert*))))
         (row (random *2048-rows*))
         (column (random *2048-columns*)))
     (while (not (eq (2048-get-cell row column)
