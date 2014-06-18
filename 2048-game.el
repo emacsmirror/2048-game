@@ -68,9 +68,15 @@
 (defconst *2048-numbers* '(0 2 4 8 16 32 64 128 256 512 1024 2048))
 
 (defvar *2048-score* nil
-  "Current score in the game. Increases every time two equal tiles are collapse, but the sum of these tiles")
+  "Current score in the game. Incremented by the sum of 2 equal tiles when they are collapsed")
 
-; TODO: pick some better colors, see (2048-test-tiles)
+(defvar *2048-hi-tile* nil
+  "Current highest-number tile")
+
+(defvar *2048-history* nil
+  "Score history in this Emacs session. Each element is (SCORE HI-TILE TIME)")
+
+;; If you want to pick some better colors, see (2048-test-tiles)
 (defface 2048-face-2    '((t . (:background "khaki" :foreground "black"))) "Face for the tile 2" :group '2048-faces)
 (defface 2048-face-4    '((t . (:background "burlywood" :foreground "black"))) "Face for the tile 4" :group '2048-faces)
 (defface 2048-face-8    '((t . (:background "orange3" :foreground "black"))) "Face for the tile 8" :group '2048-faces)
@@ -142,7 +148,9 @@
                   (make-vector (- (* *2048-columns* *2048-rows*)
                                   (length *2048-numbers*))
                                0)))
-        (*2048-score* 123456))
+        (*2048-score* 123456)
+        (*2048-history* '((123  512 "2014-06-18 12:34:56")
+                          (456 1024 "2014-06-18 12:45:00"))))
     (switch-to-buffer "2048-test")
     (2048-init-tiles)
     (2048-mode)
@@ -154,7 +162,8 @@
                                   0))
   (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
                                                nil))
-  (setq *2048-score* 0)
+  (setq *2048-score* 0
+        *2048-hi-tile* 2)
   (2048-insert-random-cell)
   (2048-insert-random-cell)
   (2048-init-tiles)
@@ -169,10 +178,13 @@
 
 (defun 2048-set-cell (row column val)
   "Sets the value in (row, column)."
-  (aset *2048-board*
-        (+ (* row *2048-columns*)
-           column)
-        val))
+  (progn
+    (when (< *2048-hi-tile* val)
+      (setq *2048-hi-tile* val))
+    (aset *2048-board*
+          (+ (* row *2048-columns*)
+             column)
+          val)))
 
 (defun 2048-num-to-printable (num)
   "If you pass in 0, returns an empty string. Otherwise, returns the number as a string."
@@ -209,9 +221,15 @@
 (defun 2048-check-game-end ()
   "Checks whether the game has either been won or lost. If so, it handles notifying and restarting."
   (cond ((2048-game-was-won)
+         (push (list *2048-score* *2048-hi-tile*
+                     (format-time-string "%Y-%m-%d %H:%M:%S"))
+               *2048-history*)
          (when (y-or-n-p "Yay! You beat the game! Want to push your luck?")
            (2048-init)))
         ((2048-game-was-lost)
+         (push (list *2048-score* *2048-hi-tile*
+                     (format-time-string "%Y-%m-%d %H:%M:%S"))
+               *2048-history*)
          (when (y-or-n-p "Aw, too bad. You lost. Want to play again?")
            (2048-init)))))
 
@@ -291,7 +309,14 @@
     (dotimes (col *2048-columns*)
       (insert "+-------"))
     (insert "+\n")
-    (insert (format "Score: %d\n" *2048-score*))))
+
+    ;; print score and history
+    (insert (format "%8d\n" *2048-score*)
+            (format "%8s %7s  %s\n" "Score" "Hi-Tile" "Date       Time"))
+    (mapc #'(lambda (x)
+              (insert (format "%8d %7d  %s\n"
+                              (first x) (second x) (third x))))
+          *2048-history*)))
 
 (defun 2048-move (from-row from-column delta-row delta-column)
   "Tries to move the number in (from-row, from-column) to (to-row, to-column).
