@@ -178,13 +178,12 @@
 
 (defun 2048-set-cell (row column val)
   "Sets the value in (row, column)."
-  (progn
-    (when (< *2048-hi-tile* val)
-      (setq *2048-hi-tile* val))
-    (aset *2048-board*
-          (+ (* row *2048-columns*)
-             column)
-          val)))
+  (when (< *2048-hi-tile* val)
+    (setq *2048-hi-tile* val))
+  (aset *2048-board*
+        (+ (* row *2048-columns*)
+           column)
+        val))
 
 (defun 2048-num-to-printable (num)
   "If you pass in 0, returns an empty string. Otherwise, returns the number as a string."
