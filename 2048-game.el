@@ -220,17 +220,22 @@
 (defun 2048-check-game-end ()
   "Checks whether the game has either been won or lost. If so, it handles notifying and restarting."
   (cond ((2048-game-was-won)
-         (push (list *2048-score* *2048-hi-tile*
-                     (format-time-string "%Y-%m-%d %H:%M:%S"))
-               *2048-history*)
+         (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
          (when (y-or-n-p "Yay! You beat the game! Want to push your luck?")
            (2048-init)))
         ((2048-game-was-lost)
-         (push (list *2048-score* *2048-hi-tile*
-                     (format-time-string "%Y-%m-%d %H:%M:%S"))
-               *2048-history*)
+         (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
          (when (y-or-n-p "Aw, too bad. You lost. Want to play again?")
            (2048-init)))))
+
+(defun 2048-add-new-history-item (score hi-tile time)
+  "Generates and adds a new history item to the score list, keeping the list in order by score."
+  (setq *2048-history* (sort* (cons (list *2048-score* *2048-hi-tile*
+                                          (format-time-string "%Y-%m-%d %H:%M:%S"
+                                                              (or time (current-time))))
+                                    *2048-history*)
+                              '>
+                              :key 'car)))
 
 (defun 2048-game-was-won ()
   "Returns t if the game was won, nil otherwise."
