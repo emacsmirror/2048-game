@@ -235,12 +235,12 @@
 
 (defun 2048-add-new-history-item (score hi-tile time)
   "Generates and adds a new history item to the score list, keeping the list in order by score."
-  (setq *2048-history* (sort* (cons (list *2048-score* *2048-hi-tile*
-                                          (format-time-string "%Y-%m-%d %H:%M:%S"
-                                                              (or time (current-time))))
-                                    *2048-history*)
-                              '>
-                              :key 'car)))
+  (setq *2048-history* (cl-sort (cons (list *2048-score* *2048-hi-tile*
+                                            (format-time-string "%Y-%m-%d %H:%M:%S"
+                                                                (or time (current-time))))
+                                      *2048-history*)
+                                '>
+                                :key 'car)))
 
 (defun 2048-game-was-won ()
   "Returns t if the game was won, nil otherwise."
@@ -324,7 +324,7 @@
             (format "%8s %7s  %s\n" "Score" "Hi-Tile" "Date       Time"))
     (mapc #'(lambda (x)
               (insert (format "%8d %7d  %s\n"
-                              (first x) (second x) (third x))))
+                              (elt x 0) (elt x 1) (elt x 2))))
           *2048-history*)))
 
 (defun 2048-move (from-row from-column delta-row delta-column)
