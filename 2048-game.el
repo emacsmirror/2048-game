@@ -37,6 +37,7 @@
   (define-key 2048-mode-map (kbd "C-f") '2048-right)
   (define-key 2048-mode-map (kbd "<right>") '2048-right))
 
+;;;###autoload
 (defun 2048-game () "Start playing 2048"
   (interactive)
   (switch-to-buffer "2048")
@@ -77,17 +78,17 @@
   "Score history in this Emacs session. Each element is (SCORE HI-TILE TIME)")
 
 ;; If you want to pick some better colors, see (2048-test-tiles)
-(defface 2048-face-2    '((t . (:background "khaki" :foreground "black"))) "Face for the tile 2" :group '2048-faces)
-(defface 2048-face-4    '((t . (:background "burlywood" :foreground "black"))) "Face for the tile 4" :group '2048-faces)
-(defface 2048-face-8    '((t . (:background "orange3" :foreground "black"))) "Face for the tile 8" :group '2048-faces)
-(defface 2048-face-16   '((t . (:background "orange" :foreground "black"))) "Face for the tile 16" :group '2048-faces)
-(defface 2048-face-32   '((t . (:background "orange red" :foreground "black"))) "Face for the tile 32" :group '2048-faces)
-(defface 2048-face-64   '((t . (:background "firebrick" :foreground "white"))) "Face for the tile 64" :group '2048-faces)
-(defface 2048-face-128  '((t . (:background "dark red" :foreground "white"))) "Face for the tile 128" :group '2048-faces)
-(defface 2048-face-256  '((t . (:background "dark magenta" :foreground "white"))) "Face for the tile 256" :group '2048-faces)
-(defface 2048-face-512  '((t . (:background "magenta" :foreground "black"))) "Face for the tile 512" :group '2048-faces)
-(defface 2048-face-1024 '((t . (:background "gold" :foreground "black"))) "Face for the tile 1024" :group '2048-faces)
-(defface 2048-face-2048 '((t . (:background "yellow" :foreground "black"))) "Face for the tile 2048" :group '2048-faces)
+(defface game-2048-face-2    '((t . (:background "khaki" :foreground "black"))) "Face for the tile 2" :group '2048-faces)
+(defface game-2048-face-4    '((t . (:background "burlywood" :foreground "black"))) "Face for the tile 4" :group '2048-faces)
+(defface game-2048-face-8    '((t . (:background "orange3" :foreground "black"))) "Face for the tile 8" :group '2048-faces)
+(defface game-2048-face-16   '((t . (:background "orange" :foreground "black"))) "Face for the tile 16" :group '2048-faces)
+(defface game-2048-face-32   '((t . (:background "orange red" :foreground "black"))) "Face for the tile 32" :group '2048-faces)
+(defface game-2048-face-64   '((t . (:background "firebrick" :foreground "white"))) "Face for the tile 64" :group '2048-faces)
+(defface game-2048-face-128  '((t . (:background "dark red" :foreground "white"))) "Face for the tile 128" :group '2048-faces)
+(defface game-2048-face-256  '((t . (:background "dark magenta" :foreground "white"))) "Face for the tile 256" :group '2048-faces)
+(defface game-2048-face-512  '((t . (:background "magenta" :foreground "black"))) "Face for the tile 512" :group '2048-faces)
+(defface game-2048-face-1024 '((t . (:background "gold" :foreground "black"))) "Face for the tile 1024" :group '2048-faces)
+(defface game-2048-face-2048 '((t . (:background "yellow" :foreground "black"))) "Face for the tile 2048" :group '2048-faces)
 
 (defun 2048-empty (n)
   "Return symbol of the variable holding empty space for number N"
@@ -135,7 +136,7 @@
             ;; The bytecompiler is smart enough to see that (concat...) is a constant, but not (format...) ;-)
             (set (2048-tile num) (format "%5s  " (2048-num-to-printable num)))
             (when (> num 0)
-              (let ((face (intern (concat "2048-face-" (int-to-string num)))))
+              (let ((face (intern (concat "game-2048-face-" (int-to-string num)))))
                 (put-text-property 0 7 'font-lock-face face (symbol-value (2048-empty num)))
                 (put-text-property 0 7 'font-lock-face face (symbol-value (2048-tile num))))))
         *2048-numbers*))
@@ -221,10 +222,12 @@
   "Checks whether the game has either been won or lost. If so, it handles notifying and restarting."
   (cond ((2048-game-was-won)
          (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
+         (2048-print-board)
          (when (y-or-n-p "Yay! You beat the game! Want to push your luck?")
            (2048-init)))
         ((2048-game-was-lost)
          (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
+         (2048-print-board)
          (when (y-or-n-p "Aw, too bad. You lost. Want to play again?")
            (2048-init)))))
 
