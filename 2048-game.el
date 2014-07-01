@@ -77,18 +77,20 @@
 (defvar *2048-history* nil
   "Score history in this Emacs session. Each element is (SCORE HI-TILE TIME)")
 
-;; If you want to pick some better colors, see (2048-test-tiles)
-(defface game-2048-face-2    '((t . (:background "khaki" :foreground "black"))) "Face for the tile 2" :group '2048-faces)
-(defface game-2048-face-4    '((t . (:background "burlywood" :foreground "black"))) "Face for the tile 4" :group '2048-faces)
-(defface game-2048-face-8    '((t . (:background "orange3" :foreground "black"))) "Face for the tile 8" :group '2048-faces)
-(defface game-2048-face-16   '((t . (:background "orange" :foreground "black"))) "Face for the tile 16" :group '2048-faces)
-(defface game-2048-face-32   '((t . (:background "orange red" :foreground "black"))) "Face for the tile 32" :group '2048-faces)
-(defface game-2048-face-64   '((t . (:background "firebrick" :foreground "white"))) "Face for the tile 64" :group '2048-faces)
-(defface game-2048-face-128  '((t . (:background "dark red" :foreground "white"))) "Face for the tile 128" :group '2048-faces)
-(defface game-2048-face-256  '((t . (:background "dark magenta" :foreground "white"))) "Face for the tile 256" :group '2048-faces)
-(defface game-2048-face-512  '((t . (:background "magenta" :foreground "black"))) "Face for the tile 512" :group '2048-faces)
-(defface game-2048-face-1024 '((t . (:background "gold" :foreground "black"))) "Face for the tile 1024" :group '2048-faces)
-(defface game-2048-face-2048 '((t . (:background "yellow" :foreground "black"))) "Face for the tile 2048" :group '2048-faces)
+;; These are prefixed with "twentyfortyeight-face-", not "2048-face"
+;; because face names starting with numbers break htmlfontify-buffer,
+;; as CSS classes beginning with numbers are ignored.
+(defface twentyfortyeight-face-2    '((t . (:background "khaki" :foreground "black"))) "Face for the tile 2" :group '2048-faces)
+(defface twentyfortyeight-face-4    '((t . (:background "burlywood" :foreground "black"))) "Face for the tile 4" :group '2048-faces)
+(defface twentyfortyeight-face-8    '((t . (:background "orange3" :foreground "black"))) "Face for the tile 8" :group '2048-faces)
+(defface twentyfortyeight-face-16   '((t . (:background "orange" :foreground "black"))) "Face for the tile 16" :group '2048-faces)
+(defface twentyfortyeight-face-32   '((t . (:background "orange red" :foreground "black"))) "Face for the tile 32" :group '2048-faces)
+(defface twentyfortyeight-face-64   '((t . (:background "firebrick" :foreground "white"))) "Face for the tile 64" :group '2048-faces)
+(defface twentyfortyeight-face-128  '((t . (:background "dark red" :foreground "white"))) "Face for the tile 128" :group '2048-faces)
+(defface twentyfortyeight-face-256  '((t . (:background "dark magenta" :foreground "white"))) "Face for the tile 256" :group '2048-faces)
+(defface twentyfortyeight-face-512  '((t . (:background "magenta" :foreground "black"))) "Face for the tile 512" :group '2048-faces)
+(defface twentyfortyeight-face-1024 '((t . (:background "gold" :foreground "black"))) "Face for the tile 1024" :group '2048-faces)
+(defface twentyfortyeight-face-2048 '((t . (:background "yellow" :foreground "black"))) "Face for the tile 2048" :group '2048-faces)
 
 (defun 2048-empty (n)
   "Return symbol of the variable holding empty space for number N"
@@ -136,7 +138,7 @@
             ;; The bytecompiler is smart enough to see that (concat...) is a constant, but not (format...) ;-)
             (set (2048-tile num) (format "%5s  " (2048-num-to-printable num)))
             (when (> num 0)
-              (let ((face (intern (concat "game-2048-face-" (int-to-string num)))))
+              (let ((face (intern (concat "twentyfortyeight-face-" (int-to-string num)))))
                 (put-text-property 0 7 'font-lock-face face (symbol-value (2048-empty num)))
                 (put-text-property 0 7 'font-lock-face face (symbol-value (2048-tile num))))))
         *2048-numbers*))
