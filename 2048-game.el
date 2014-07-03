@@ -78,8 +78,11 @@
 (defvar *2048-possible-values-to-insert* (cons 4 (make-list 9 2))
   "When a new element is inserted into the board, randomly choose a number from this sequence.")
 
-(defvar *2048-victory-value* 2048
+(defvar *2048-victory-value* nil
   "When this number is reached, the user wins! Yay!")
+
+(defvar *2048-default-victory-value* 2048
+  "When the game starts, reset *2048-victory-value* to this value.")
 
 (defvar *2048-debug* nil
   "when 't, print debugging information.")
@@ -185,6 +188,7 @@
                                                nil))
   (setq *2048-score* 0
         *2048-hi-tile* 2)
+  (setq *2048-victory-value* *2048-default-victory-value*)
   (2048-insert-random-cell)
   (2048-insert-random-cell)
   (2048-init-tiles)
@@ -242,9 +246,11 @@
   "Checks whether the game has either been won or lost. If so, it handles notifying and restarting."
   (cond ((2048-game-was-won)
          (2048-print-board)
-         (when (y-or-n-p "Yay! You beat the game! Think you can do it again?")
-           (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
-           (2048-init)))
+         (if (y-or-n-p "Yay! You beat the game! Think you can do it again?")
+             (progn (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
+                    (2048-init))
+           (setq *2048-victory-value*
+                 (* *2048-victory-value* 2))))
         ((2048-game-was-lost)
          (2048-print-board)
          (when (y-or-n-p "Aw, too bad. You lost. Want to play again?")
