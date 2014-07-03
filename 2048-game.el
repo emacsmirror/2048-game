@@ -246,7 +246,7 @@
   "Checks whether the game has either been won or lost. If so, it handles notifying and restarting."
   (cond ((2048-game-was-won)
          (2048-print-board)
-         (if (y-or-n-p "Yay! You beat the game! Think you can do it again?")
+         (if (y-or-n-p "Yay! You beat the game! Push your luck? y to start again; n to continue.")
              (progn (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
                     (2048-init))
            (setq *2048-victory-value*
