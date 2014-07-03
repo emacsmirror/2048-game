@@ -241,14 +241,14 @@
 (defun 2048-check-game-end ()
   "Checks whether the game has either been won or lost. If so, it handles notifying and restarting."
   (cond ((2048-game-was-won)
-         (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
          (2048-print-board)
-         (when (y-or-n-p "Yay! You beat the game! Want to push your luck?")
+         (when (y-or-n-p "Yay! You beat the game! Think you can do it again?")
+           (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
            (2048-init)))
         ((2048-game-was-lost)
-         (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
          (2048-print-board)
          (when (y-or-n-p "Aw, too bad. You lost. Want to play again?")
+           (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
            (2048-init)))))
 
 (defun 2048-add-new-history-item (score hi-tile time)
