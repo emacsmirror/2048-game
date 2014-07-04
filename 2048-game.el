@@ -113,13 +113,27 @@
 (defface twentyfortyeight-face-1024 '((t . (:background "gold" :foreground "black"))) "Face for the tile 1024" :group '2048-faces)
 (defface twentyfortyeight-face-2048 '((t . (:background "yellow" :foreground "black"))) "Face for the tile 2048" :group '2048-faces)
 
-(defun 2048-empty (n)
+(defun 2048-empty-tile (num)
+  "Return the tile to be inserted. That is, an empty string with font stuff on it."
+  (symbol-value (2048-empty-symbol num)))
+
+(defun 2048-empty-symbol (n)
   "Return symbol of the variable holding empty space for number N"
-  (intern (concat "2048-empty-" (int-to-string n))))
+  (if (<= n
+          (apply 'max *2048-numbers*))
+      (intern (concat "2048-empty-" (int-to-string n)))
+    '2048-empty-2048))
+
+(defun 2048-tile-symbol (num)
+  "Return symbol of the variable holding tile for number N"
+  (if (<= num
+          (apply 'max *2048-numbers*))
+      (intern (concat "2048-tile-" (int-to-string num)))
+    '2048-tile-2048))
 
 (defun 2048-tile (n)
-  "Return symbol of the variable holding tile for number N"
-  (intern (concat "2048-tile-" (int-to-string n))))
+  "Return the tile to be inserted. The tile is the string, but with extra font stuff on it."
+  (symbol-value (2048-tile-symbol n)))
 
 (defmacro 2048-for (var init end &rest body)
   "Helper function. executes 'body repeatedly, with 'var assigned values starting at 'init, and ending at 'end, increasing by one each iteration."
@@ -153,16 +167,18 @@
 
 (defun 2048-init-tiles ()
   "Init each variable 2048-empty-N and 2048-tile-N with appropriate string and face"
-  (mapc #'(lambda (num)
-            (set (2048-empty num) (format "%7s" " "))
-            ;; if constant then all faces are applied to this one constant. (Symptom: all background is yellow)
-            ;; The bytecompiler is smart enough to see that (concat...) is a constant, but not (format...) ;-)
-            (set (2048-tile num) (format "%5s  " (2048-num-to-printable num)))
-            (when (> num 0)
-              (let ((face (intern (concat "twentyfortyeight-face-" (int-to-string num)))))
-                (put-text-property 0 7 'font-lock-face face (symbol-value (2048-empty num)))
-                (put-text-property 0 7 'font-lock-face face (symbol-value (2048-tile num))))))
+  (mapc #'2048-init-tile
         *2048-numbers*))
+
+(defun 2048-init-tile (number)
+  (set (2048-empty-symbol number) (format "%7s" " "))
+  ;; if constant then all faces are applied to this one constant. (Symptom: all background is yellow)
+  ;; The bytecompiler is smart enough to see that (concat...) is a constant, but not (format...) ;-)
+  (set (2048-tile-symbol number) (format "%5s  " (2048-num-to-printable number)))
+  (when (> number 0)
+    (let ((face (intern (concat "twentyfortyeight-face-" (int-to-string number)))))
+      (put-text-property 0 7 'font-lock-face face (2048-empty-tile number))
+      (put-text-property 0 7 'font-lock-face face (2048-tile number)))))
 
 (defun 2048-test-tiles ()
   "Test out the tile colors"
@@ -318,7 +334,7 @@
       (dotimes (col *2048-columns*)
         (insert "|")
         (let ((current-value (2048-get-cell row col)))
-          (insert (symbol-value (2048-empty current-value)))))
+          (insert (2048-empty-tile current-value))))
       (insert "|")
       (insert "\n")
 
@@ -326,7 +342,7 @@
       (dotimes (col *2048-columns*)
         (insert "|")
         (let ((current-value (2048-get-cell row col)))
-          (insert (symbol-value (2048-tile current-value)))))
+          (insert (2048-tile current-value))))
       (insert "|")
       (insert "\n")
 
@@ -334,7 +350,7 @@
       (dotimes (col *2048-columns*)
         (insert "|")
         (let ((current-value (2048-get-cell row col)))
-          (insert (symbol-value (2048-empty current-value)))))
+          (insert (2048-empty-tile current-value))))
       (insert "|")
       (insert "\n"))
 
