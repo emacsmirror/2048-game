@@ -98,6 +98,11 @@
 (defvar *2048-history* nil
   "Score history in this Emacs session. Each element is (SCORE HI-TILE TIME)")
 
+(defvar *2048-game-has-been-added-to-history* nil
+  "Whether the current game has been added to the history yet.
+
+Right now, it's only for use when the game has been lost. Since the user can choose to not start a new game, we want to add the score to the history the first time the game is lost, but not any other time.")
+
 ;; These are prefixed with "twentyfortyeight-face-", not "2048-face"
 ;; because face names starting with numbers break htmlfontify-buffer,
 ;; as CSS classes beginning with numbers are ignored.
@@ -210,6 +215,7 @@
   (setq *2048-score* 0
         *2048-hi-tile* 2)
   (setq *2048-victory-value* *2048-default-victory-value*)
+  (setq *2048-game-has-been-added-to-history* nil)
   (2048-insert-random-cell)
   (2048-insert-random-cell)
   (2048-init-tiles)
@@ -273,9 +279,11 @@
            (setq *2048-victory-value*
                  (* *2048-victory-value* 2))))
         ((2048-game-was-lost)
+         (unless *2048-game-has-been-added-to-history*
+           (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
+           (setq *2048-game-has-been-added-to-history* t))
          (2048-print-board)
          (when (y-or-n-p "Aw, too bad. You lost. Want to play again?")
-           (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
            (2048-init)))))
 
 (defun 2048-add-new-history-item (score hi-tile time)
