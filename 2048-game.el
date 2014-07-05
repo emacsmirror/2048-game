@@ -113,23 +113,28 @@
 (defface twentyfortyeight-face-1024 '((t . (:background "gold" :foreground "black"))) "Face for the tile 1024" :group '2048-faces)
 (defface twentyfortyeight-face-2048 '((t . (:background "yellow" :foreground "black"))) "Face for the tile 2048" :group '2048-faces)
 
+(defun 2048-get-face (number)
+  (let ((face-symbol (2048-get-face-symbol number)))
+    (if (facep face-symbol)
+        face-symbol
+      'twentyfortyeight-face-2048)))
+
+(defun 2048-get-face-symbol (number)
+  "Return the face symbol for the given number."
+  (intern (concat "twentyfortyeight-face-"
+                   (int-to-string number))))
+
 (defun 2048-empty-tile (num)
   "Return the tile to be inserted. That is, an empty string with font stuff on it."
   (symbol-value (2048-empty-symbol num)))
 
 (defun 2048-empty-symbol (n)
   "Return symbol of the variable holding empty space for number N"
-  (if (<= n
-          (apply 'max *2048-numbers*))
-      (intern (concat "2048-empty-" (int-to-string n)))
-    '2048-empty-2048))
+  (intern (concat "2048-empty-" (int-to-string n))))
 
 (defun 2048-tile-symbol (num)
   "Return symbol of the variable holding tile for number N"
-  (if (<= num
-          (apply 'max *2048-numbers*))
-      (intern (concat "2048-tile-" (int-to-string num)))
-    '2048-tile-2048))
+  (intern (concat "2048-tile-" (int-to-string num))))
 
 (defun 2048-tile (n)
   "Return the tile to be inserted. The tile is the string, but with extra font stuff on it."
@@ -176,7 +181,7 @@
   ;; The bytecompiler is smart enough to see that (concat...) is a constant, but not (format...) ;-)
   (set (2048-tile-symbol number) (format "%5s  " (2048-num-to-printable number)))
   (when (> number 0)
-    (let ((face (intern (concat "twentyfortyeight-face-" (int-to-string number)))))
+    (let ((face (2048-get-face number)))
       (put-text-property 0 7 'font-lock-face face (2048-empty-tile number))
       (put-text-property 0 7 'font-lock-face face (2048-tile number)))))
 
@@ -383,10 +388,13 @@
                (unless (or (eq from-val 0)
                            (2048-was-combined-this-turn to-row to-column))
                  (2048-debug (format "combining (%d, %d) into (%d, %d)" from-row from-column to-row to-column))
-                 (2048-set-cell to-row to-column (* from-val 2))
-                 (setq *2048-score* (+ *2048-score* (* from-val 2)))
-                 (2048-set-cell from-row from-column 0)
-                 (2048-set-was-combined-this-turn to-row to-column)))
+                 (let ((combined-value (* from-val 2)))
+                   (unless (boundp (2048-tile-symbol combined-value))
+                     (2048-init-tile combined-value))
+                   (2048-set-cell to-row to-column combined-value)
+                   (setq *2048-score* (+ *2048-score* combined-value))
+                   (2048-set-cell from-row from-column 0)
+                   (2048-set-was-combined-this-turn to-row to-column))))
               ((eq to-val 0)
                (2048-set-cell to-row to-column from-val)
                (2048-set-cell from-row from-column 0)
