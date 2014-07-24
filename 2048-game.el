@@ -1,4 +1,4 @@
-;;; 2048.el --- play 2048 in Emacs
+;;; 2048-game.el --- play 2048 in Emacs
 
 ;; Copyright 2014 Zachary Kanfer
 
@@ -470,4 +470,4 @@ Right now, it's only for use when the game has been lost. Since the user can cho
        (2048-insert-random-cell)))))
 
 (provide '2048-game)
-;;; 2048.el ends here
+;;; 2048-game.el ends here
