@@ -29,7 +29,7 @@
 ;; p/n/b/f, or C-p/C-n/C-b/C-f to move the tiles around.
 
 ;; Whenever you move the board, all tiles slide as far to that direction
-;; as they can go. If a tile collides with another tile of the same value,
+;; as they can go.  If a tile collides with another tile of the same value,
 ;; the tiles combine into a tile with double the initial value, and you
 ;; gain the new tile's value as your score.
 
@@ -56,24 +56,27 @@
   (define-key 2048-mode-map (kbd "<right>") '2048-right))
 
 ;;;###autoload
-(defun 2048-game () "Start playing 2048"
+(defun 2048-game () "Start playing 2048."
   (interactive)
   (switch-to-buffer "2048")
   (2048-mode)
   (2048-init))
 
 (defvar *2048-board* nil
-  "The board itself. If a number is in the square, the number is stored. Otherwise, 0 is stored.
-   You should access this with 2048-get-cell.")
+  "The board itself.
+
+If a number is in the square, the number is stored.  Otherwise, 0 is stored.
+
+Instead of accessing this directly, use 2048-get-cell.")
 
 (defvar *2048-combines-this-move* nil
   "This stores, for each cell in the board, whether the number in it was generated this turn by two numbers combining.")
 
 (defvar *2048-columns* 4
-  "The width of the board. It could be customized, if you wanted to make the game very very hard, or very very easy.")
+  "The width of the board.  It could be customized, if you wanted to make the game very very hard, or very very easy.")
 
 (defvar *2048-rows* 4
-  "The height of the board. It could be customized, if you wanted to make the game very very tall, or very very short.")
+  "The height of the board.  It could be customized, if you wanted to make the game very very tall, or very very short.")
 
 (defvar *2048-possible-values-to-insert* (cons 4 (make-list 9 2))
   "When a new element is inserted into the board, randomly choose a number from this sequence.")
@@ -85,23 +88,23 @@
   "When the game starts, reset *2048-victory-value* to this value.")
 
 (defvar *2048-debug* nil
-  "when 't, print debugging information.")
+  "When 't, print debugging information.")
 
 (defconst *2048-numbers* '(0 2 4 8 16 32 64 128 256 512 1024 2048))
 
 (defvar *2048-score* nil
-  "Current score in the game. Incremented by the sum of 2 equal tiles when they are collapsed")
+  "Current score in the game.")
 
 (defvar *2048-hi-tile* nil
-  "Current highest-number tile")
+  "Current highest-number tile.")
 
 (defvar *2048-history* nil
-  "Score history in this Emacs session. Each element is (SCORE HI-TILE TIME)")
+  "Score history in this Emacs session.  Each element is (SCORE HI-TILE TIME).")
 
 (defvar *2048-game-has-been-added-to-history* nil
   "Whether the current game has been added to the history yet.
 
-Right now, it's only for use when the game has been lost. Since the user can choose to not start a new game, we want to add the score to the history the first time the game is lost, but not any other time.")
+Right now, it's only for use when the game has been lost.  Since the user can choose to not start a new game, we want to add the score to the history the first time the game is lost, but not any other time.")
 
 ;; These are prefixed with "twentyfortyeight-face-", not "2048-face"
 ;; because face names starting with numbers break htmlfontify-buffer,
@@ -119,34 +122,39 @@ Right now, it's only for use when the game has been lost. Since the user can cho
 (defface twentyfortyeight-face-2048 '((t . (:background "yellow" :foreground "black"))) "Face for the tile 2048" :group '2048-faces)
 
 (defun 2048-get-face (number)
+  "Return the face for squares holding NUMBER."
   (let ((face-symbol (2048-get-face-symbol number)))
     (if (facep face-symbol)
         face-symbol
       'twentyfortyeight-face-2048)))
 
 (defun 2048-get-face-symbol (number)
-  "Return the face symbol for the given number."
+  "Return the face symbol for squares holding NUMBER."
   (intern (concat "twentyfortyeight-face-"
                    (int-to-string number))))
 
 (defun 2048-empty-tile (num)
-  "Return the tile to be inserted. That is, an empty string with font stuff on it."
+  "Return the tile to be inserted for the blank part of a square holding NUM.
+
+That is, an empty string with font stuff on it."
   (symbol-value (2048-empty-symbol num)))
 
-(defun 2048-empty-symbol (n)
-  "Return symbol of the variable holding empty space for number N"
-  (intern (concat "2048-empty-" (int-to-string n))))
+(defun 2048-empty-symbol (num)
+  "Return symbol of the variable holding empty space for number NUM."
+  (intern (concat "2048-empty-" (int-to-string num))))
 
 (defun 2048-tile-symbol (num)
-  "Return symbol of the variable holding tile for number N"
+  "Return symbol of the variable for the tile for squares holding NUM."
   (intern (concat "2048-tile-" (int-to-string num))))
 
-(defun 2048-tile (n)
-  "Return the tile to be inserted. The tile is the string, but with extra font stuff on it."
-  (symbol-value (2048-tile-symbol n)))
+(defun 2048-tile (num)
+  "Return the tile to be inserted for a square holding NUM.
+
+The tile is the string, but with extra font stuff on it."
+  (symbol-value (2048-tile-symbol num)))
 
 (defmacro 2048-for (var init end &rest body)
-  "Helper function. executes 'body repeatedly, with 'var assigned values starting at 'init, and ending at 'end, increasing by one each iteration."
+  "Helper function.  Loop with VAR assigned values starting at INIT, and ending at END, increasing by one each iteration.  Each iteration, execute BODY."
   `(let ((,var ,init)
 	 (end-val ,end))
      (while (<= ,var end-val)
@@ -154,7 +162,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
        (setq ,var (1+ ,var)))))
 
 (defmacro 2048-for-down (var init end &rest body)
-  "Helper function, executes 'body repeatedly, with 'var assigned values starting at 'init, and ending at 'end, decreasing by one each iteration."
+  "Helper function.  Loop with VAR assigned values starting at INIT, and ending at END, decreasing by one each iteration.  Each iteration, execute BODY."
   `(let ((,var ,init)
 	 (end-val ,end))
      (while (>= ,var end-val)
@@ -162,6 +170,9 @@ Right now, it's only for use when the game has been lost. Since the user can cho
        (setq ,var (1- ,var)))))
 
 (defmacro 2048-game-move (&rest body)
+  "Perform the game move indicated by BODY.
+
+This macro is used to do some housekeeping around the move."
   `(progn (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
                                                nil))
 
@@ -170,17 +181,20 @@ Right now, it's only for use when the game has been lost. Since the user can cho
           (2048-check-game-end)))
 
 (defmacro 2048-debug (&rest body)
-  "If *2048-debug* is 't, log ,@body as a string to the buffer named '2048-debug'"
+  "If *2048-debug* is 't, log ,@BODY as a string to the buffer named '2048-debug'."
   `(when *2048-debug*
      (print (concat ,@body)
 	    (get-buffer-create "2048-debug"))))
 
 (defun 2048-init-tiles ()
-  "Init each variable 2048-empty-N and 2048-tile-N with appropriate string and face"
+  "Initialize each variable 2048-empty-N and 2048-tile-N with appropriate string and face."
   (mapc #'2048-init-tile
         *2048-numbers*))
 
 (defun 2048-init-tile (number)
+  "Initialize the tile holding NUMBER.
+
+This sets up both the tile to hold it, and the empty space around it."
   (set (2048-empty-symbol number) (format "%7s" " "))
   ;; if constant then all faces are applied to this one constant. (Symptom: all background is yellow)
   ;; The bytecompiler is smart enough to see that (concat...) is a constant, but not (format...) ;-)
@@ -191,7 +205,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
       (put-text-property 0 7 'font-lock-face face (2048-tile number)))))
 
 (defun 2048-test-tiles ()
-  "Test out the tile colors"
+  "Test out the tile colors."
   (interactive)
   (let ((*2048-board*
          (vconcat *2048-numbers*
@@ -223,13 +237,13 @@ Right now, it's only for use when the game has been lost. Since the user can cho
   (message "Good luck!"))
 
 (defun 2048-get-cell (row col)
-  "Gets the value in (row, col)."
+  "Get the value in (ROW, COL)."
   (elt *2048-board*
        (+ (* row *2048-columns*)
           col)))
 
 (defun 2048-set-cell (row column val)
-  "Sets the value in (row, column)."
+  "Set the value in (ROW, COLUMN) to VAL."
   (when (< *2048-hi-tile* val)
     (setq *2048-hi-tile* val))
   (aset *2048-board*
@@ -238,19 +252,21 @@ Right now, it's only for use when the game has been lost. Since the user can cho
         val))
 
 (defun 2048-num-to-printable (num)
-  "If you pass in 0, returns an empty string. Otherwise, returns the number as a string."
+  "Return NUM as a string that can be put into the board.
+
+That is, print zeros as empty strings, and all other numbers as themselves."
   (if (eq num 0)
       ""
     (format "%d" num)))
 
 (defun 2048-was-combined-this-turn (row column)
-  "Returns whether the number in it was generated this turn by two numbers combining."
+  "Return whether the number in (ROW, COLUMN) was generated this turn by two numbers combining."
   (elt *2048-combines-this-move*
        (+ (* row *2048-columns*)
           column)))
 
 (defun 2048-set-was-combined-this-turn (row column)
-  "Returns whether the number in it was generated this turn by two numbers combining."
+  "Set that the number in (ROW, COLUMN) was generated this turn by two numbers combining."
   (2048-debug (format "setting (%d, %d) as combined this turn." row column))
   (aset *2048-combines-this-move*
         (+ (* row *2048-columns*)
@@ -258,7 +274,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
         t))
 
 (defun 2048-insert-random-cell ()
-  "Picks a number randomly, and inserts it into a random cell."
+  "Pick a number randomly, and insert it into a random cell."
   (let ((number-to-insert (elt *2048-possible-values-to-insert*
                                (random (length *2048-possible-values-to-insert*))))
         (row (random *2048-rows*))
@@ -270,7 +286,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
     (2048-set-cell row column number-to-insert)))
 
 (defun 2048-check-game-end ()
-  "Checks whether the game has either been won or lost. If so, it handles notifying and restarting."
+  "Check whether the game has either been won or lost.  If so, notify the user and restarting."
   (cond ((2048-game-was-won)
          (2048-print-board)
          (if (y-or-n-p "Yay! You beat the game! Push your luck? y to start again; n to continue.")
@@ -287,7 +303,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
            (2048-init)))))
 
 (defun 2048-add-new-history-item (score hi-tile time)
-  "Generates and adds a new history item to the score list, keeping the list in order by score."
+  "Generate and add a new history item to the score list, keeping the list in order by score."
   (setq *2048-history* (cl-sort (cons (list *2048-score* *2048-hi-tile*
                                             (format-time-string "%Y-%m-%d %H:%M:%S"
                                                                 (or time (current-time))))
@@ -296,7 +312,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
                                 :key 'car)))
 
 (defun 2048-game-was-won ()
-  "Returns t if the game was won, nil otherwise."
+  "Return t if the game was won, nil otherwise."
   (let ((game-was-won nil))
     (2048-for row 0 (1- *2048-rows*)
               (2048-for column 0 (1- *2048-columns*)
@@ -306,7 +322,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
     game-was-won))
 
 (defun 2048-game-was-lost ()
-  "Returns t if the game was lost, nil otherwise."
+  "Return t if the game was lost, nil otherwise."
   (let ((game-was-lost t))
     (2048-for row 0 (1- *2048-rows*)
               (2048-for column 0 (1- *2048-columns*)
@@ -381,11 +397,13 @@ Right now, it's only for use when the game has been lost. Since the user can cho
           *2048-history*)))
 
 (defun 2048-move (from-row from-column delta-row delta-column)
-  "Tries to move the number in (from-row, from-column) to (to-row, to-column).
-   This succeeds when (to-row, to-column) either is 0,
-   or is the same value as (from-row, from-column).
-   If (to-row, to-column) is zero, cascade and try to move further.
-   Returns t if we were able to move; otherwise nil."
+  "Try to move the number in (FROM-ROW, FROM-COLUMN)
+
+Move it by (DELTA-ROW, DELTA-COLUMN).
+This succeeds when the destination (to-row, to-column) either is 0,
+or is the same value as (from-row, from-column).
+If (to-row, to-column) is zero, cascade and try to move further.
+Returns t if we were able to move; otherwise nil."
   (let ((to-row (+ from-row delta-row))
         (to-column (+ from-column delta-column)))
     (when (in-bounds to-row to-column)
@@ -411,6 +429,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
               (t nil)))))) ;;ugh, need to pass out whether something was combined, and pass that to the _next_ call to 2048-move. We see bugs on rows like 4 0 4 0.
 
 (defun in-bounds (row column)
+  "Return t if (ROW, COLUMN) is in the bounds of the field."
   (and (>= row 0)
        (>= column 0)
        (< row *2048-rows*)
@@ -418,7 +437,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
 
 
 (defun 2048-up ()
-  "Shifts the board up"
+  "Shift the board up."
   (interactive)
   (2048-game-move
    (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
@@ -432,7 +451,7 @@ Right now, it's only for use when the game has been lost. Since the user can cho
        (2048-insert-random-cell)))))
 
 (defun 2048-down ()
-  "Shifts the board down"
+  "Shift the board down."
   (interactive)
   (2048-game-move
    (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
