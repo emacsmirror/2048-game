@@ -307,12 +307,12 @@ That is, print zeros as empty strings, and all other numbers as themselves."
 
 This item should have score SCORE, the highest tile reached as HI-TILE,
 and be completed at time TIME."
-  (setq *2048-history* (cl-sort (cons (list *2048-score* *2048-hi-tile*
-                                            (format-time-string "%Y-%m-%d %H:%M:%S"
-                                                                (or time (current-time))))
-                                      *2048-history*)
-                                '>
-                                :key 'car)))
+  (setq *2048-history* (sort* (cons (list *2048-score* *2048-hi-tile*
+                                          (format-time-string "%Y-%m-%d %H:%M:%S"
+                                                              (or time (current-time))))
+                                    *2048-history*)
+                              '>
+                              :key 'car)))
 
 (defun 2048-game-was-won ()
   "Return t if the game was won, nil otherwise."
