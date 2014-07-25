@@ -317,37 +317,37 @@ and be completed at time TIME."
 (defun 2048-game-was-won ()
   "Return t if the game was won, nil otherwise."
   (let ((game-was-won nil))
-    (2048-for row 0 (1- *2048-rows*)
-              (2048-for column 0 (1- *2048-columns*)
-                        (when (eq (2048-get-cell row column)
-                                  *2048-victory-value*)
-                          (setq game-was-won t))))
+    (dotimes (row *2048-rows*)
+      (dotimes (column *2048-columns*)
+        (when (eq (2048-get-cell row column)
+                  *2048-victory-value*)
+          (setq game-was-won t))))
     game-was-won))
 
 (defun 2048-game-was-lost ()
   "Return t if the game was lost, nil otherwise."
   (let ((game-was-lost t))
-    (2048-for row 0 (1- *2048-rows*)
-              (2048-for column 0 (1- *2048-columns*)
-                        (when (eq (2048-get-cell row column)
-                                  0)
-                          (setq game-was-lost nil))))
+    (dotimes (row *2048-rows*)
+      (dotimes (column *2048-columns*)
+        (when (eq (2048-get-cell row column)
+                  0)
+          (setq game-was-lost nil))))
 
     ;; For each square, if that square has one below it that's the same,
     ;; the game's not over.
-    (2048-for row 0 (- *2048-rows* 2)
-              (2048-for column 0 (1- *2048-columns*)
-                        (when (eq (2048-get-cell row column)
-                                      (2048-get-cell (1+ row) column))
-                          (setq game-was-lost nil))))
+    (dotimes (row (1- *2048-rows*))
+      (dotimes (column *2048-columns*)
+        (when (eq (2048-get-cell row column)
+                  (2048-get-cell (1+ row) column))
+          (setq game-was-lost nil))))
 
     ;; For each square, if that square has one to its right that's the same,
     ;; the game's not over.
-    (2048-for column 0 (- *2048-columns* 2)
-              (2048-for row 0 (1- *2048-rows*)
-                        (when (eq (2048-get-cell row column)
-                                  (2048-get-cell row (1+ column)))
-                          (setq game-was-lost nil))))
+    (dotimes (row *2048-rows*)
+      (dotimes (column (1- *2048-columns*))
+        (when (eq (2048-get-cell row column)
+                  (2048-get-cell row (1+ column)))
+          (setq game-was-lost nil))))
     game-was-lost))
 
 (defun 2048-print-board ()
@@ -446,10 +446,10 @@ Returns t if we were able to move; otherwise nil."
    (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
                                                 nil))
    (let ((has-moved nil))
-     (2048-for col 0 (1- *2048-columns*)
-               (2048-for row 1 (1- *2048-rows*)
-                         (setq has-moved (or (2048-move row col -1 0)
-                                             has-moved))))
+     (dotimes (col *2048-columns*)
+       (2048-for row 1 (1- *2048-rows*)
+                 (setq has-moved (or (2048-move row col -1 0)
+                                     has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
 
@@ -460,10 +460,10 @@ Returns t if we were able to move; otherwise nil."
    (setq *2048-combines-this-move* (make-vector (* *2048-columns* *2048-rows*)
                                                 nil))
    (let ((has-moved nil))
-     (2048-for col 0 (1- *2048-columns*)
-               (2048-for-down row (- *2048-rows* 2) 0
-                              (setq has-moved (or (2048-move row col 1 0)
-                                                  has-moved))))
+     (dotimes (col *2048-columns*)
+       (2048-for-down row (- *2048-rows* 2) 0
+                      (setq has-moved (or (2048-move row col 1 0)
+                                          has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
 
@@ -472,10 +472,10 @@ Returns t if we were able to move; otherwise nil."
   (interactive)
   (2048-game-move
    (let ((has-moved nil))
-     (2048-for row 0 (1- *2048-rows*)
-               (2048-for col 1 (1- *2048-columns*)
-                         (setq has-moved (or (2048-move row col 0 -1)
-                                             has-moved))))
+     (dotimes (row *2048-rows*)
+       (2048-for col 1 (1- *2048-columns*)
+                 (setq has-moved (or (2048-move row col 0 -1)
+                                     has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
 
@@ -484,10 +484,10 @@ Returns t if we were able to move; otherwise nil."
   (interactive)
   (2048-game-move
    (let ((has-moved nil))
-     (2048-for row 0 (1- *2048-rows*)
-               (2048-for-down col (- *2048-columns* 2) 0
-                              (setq has-moved (or (2048-move row col 0 1)
-                                                  has-moved))))
+     (dotimes (row *2048-rows*)
+       (2048-for-down col (- *2048-columns* 2) 0
+                      (setq has-moved (or (2048-move row col 0 1)
+                                          has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
 
