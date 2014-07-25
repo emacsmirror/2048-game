@@ -289,7 +289,7 @@ That is, print zeros as empty strings, and all other numbers as themselves."
   "Check whether the game has either been won or lost.  If so, notify the user and restarting."
   (cond ((2048-game-was-won)
          (2048-print-board)
-         (if (y-or-n-p "Yay! You beat the game! Push your luck? y to start again; n to continue.")
+         (if (y-or-n-p "Yay! You beat the game!  y to start again; n to continue.  Start again? ")
              (progn (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
                     (2048-init))
            (setq *2048-victory-value*
@@ -299,11 +299,14 @@ That is, print zeros as empty strings, and all other numbers as themselves."
            (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
            (setq *2048-game-has-been-added-to-history* t))
          (2048-print-board)
-         (when (y-or-n-p "Aw, too bad. You lost. Want to play again?")
+         (when (y-or-n-p "Aw, too bad.  You lost.  Want to play again? ")
            (2048-init)))))
 
 (defun 2048-add-new-history-item (score hi-tile time)
-  "Generate and add a new history item to the score list, keeping the list in order by score."
+  "Generate and add a new history item to the score list.
+
+This item should have score SCORE, the highest tile reached as HI-TILE,
+and be completed at time TIME."
   (setq *2048-history* (cl-sort (cons (list *2048-score* *2048-hi-tile*
                                             (format-time-string "%Y-%m-%d %H:%M:%S"
                                                                 (or time (current-time))))
