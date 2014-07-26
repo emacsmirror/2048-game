@@ -155,22 +155,6 @@ That is, an empty string with font stuff on it."
 The tile is the string, but with extra font stuff on it."
   (symbol-value (2048-tile-symbol num)))
 
-(defmacro 2048-for (var init end &rest body)
-  "Helper function.  Loop with VAR assigned values starting at INIT, and ending at END, increasing by one each iteration.  Each iteration, execute BODY."
-  `(let ((,var ,init)
-	 (end-val ,end))
-     (while (<= ,var end-val)
-       ,@body
-       (setq ,var (1+ ,var)))))
-
-(defmacro 2048-for-down (var init end &rest body)
-  "Helper function.  Loop with VAR assigned values starting at INIT, and ending at END, decreasing by one each iteration.  Each iteration, execute BODY."
-  `(let ((,var ,init)
-	 (end-val ,end))
-     (while (>= ,var end-val)
-       ,@body
-       (setq ,var (1- ,var)))))
-
 (defmacro 2048-game-move (&rest body)
   "Perform the game move indicated by BODY.
 
@@ -449,9 +433,10 @@ Returns t if we were able to move; otherwise nil."
                                                 nil))
    (let ((has-moved nil))
      (dotimes (col *2048-columns*)
-       (2048-for row 1 (1- *2048-rows*)
-                 (setq has-moved (or (2048-move row col -1 0)
-                                     has-moved))))
+       (dolist (row (number-sequence 1
+                                     (1- *2048-rows*)))
+         (setq has-moved (or (2048-move row col -1 0)
+                             has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
 
@@ -463,9 +448,9 @@ Returns t if we were able to move; otherwise nil."
                                                 nil))
    (let ((has-moved nil))
      (dotimes (col *2048-columns*)
-       (2048-for-down row (- *2048-rows* 2) 0
-                      (setq has-moved (or (2048-move row col 1 0)
-                                          has-moved))))
+       (dolist (row (- *2048-rows* 2) 0 -1)
+         (setq has-moved (or (2048-move row col 1 0)
+                             has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
 
@@ -475,9 +460,9 @@ Returns t if we were able to move; otherwise nil."
   (2048-game-move
    (let ((has-moved nil))
      (dotimes (row *2048-rows*)
-       (2048-for col 1 (1- *2048-columns*)
-                 (setq has-moved (or (2048-move row col 0 -1)
-                                     has-moved))))
+       (dolist (col (number-sequence 1 (1- *2048-columns*)))
+         (setq has-moved (or (2048-move row col 0 -1)
+                             has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
 
@@ -487,9 +472,9 @@ Returns t if we were able to move; otherwise nil."
   (2048-game-move
    (let ((has-moved nil))
      (dotimes (row *2048-rows*)
-       (2048-for-down col (- *2048-columns* 2) 0
-                      (setq has-moved (or (2048-move row col 0 1)
-                                          has-moved))))
+       (dolist (col (number-sequence (- *2048-columns* 2) 0 -1))
+         (setq has-moved (or (2048-move row col 0 1)
+                             has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
 
