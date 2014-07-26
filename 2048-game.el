@@ -62,6 +62,8 @@
   (2048-mode)
   (2048-init))
 
+(require 'cl-lib)
+
 (defvar *2048-board* nil
   "The board itself.
 
@@ -307,7 +309,7 @@ That is, print zeros as empty strings, and all other numbers as themselves."
 
 This item should have score SCORE, the highest tile reached as HI-TILE,
 and be completed at time TIME."
-  (setq *2048-history* (sort* (cons (list *2048-score* *2048-hi-tile*
+  (setq *2048-history* (cl-sort (cons (list *2048-score* *2048-hi-tile*
                                           (format-time-string "%Y-%m-%d %H:%M:%S"
                                                               (or time (current-time))))
                                     *2048-history*)
