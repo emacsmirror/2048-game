@@ -376,14 +376,27 @@ and be completed at time TIME."
     (dotimes (col *2048-columns*)
       (insert "+-------"))
     (insert "+\n")
+    (insert (format "%8d\n" *2048-score*))
+    (insert "\n")
+
+    (2048-print-help)
+
+    (insert "\n")
 
     ;; print score and history
-    (insert (format "%8d\n" *2048-score*)
-            (format "%8s %7s  %s\n" "Score" "Hi-Tile" "Date       Time"))
+
+    (insert (format "%8s %7s  %s\n" "Score" "Hi-Tile" "Date       Time"))
     (mapc #'(lambda (x)
               (insert (format "%8d %7d  %s\n"
                               (elt x 0) (elt x 1) (elt x 2))))
           *2048-history*)))
+
+(defun 2048-print-help ()
+  "Prints basic help text"
+  (insert "The goal is to create a tile with value 2048.
+Use the arrow keys, p/n/b/f, or C-p/C-n/C-b/C-f to move the tiles around.
+If a tile collides with another tile of the same value,
+the tiles combine into a tile with double the initial value.\n"))
 
 (defun 2048-move (from-row from-column delta-row delta-column)
   "Try to move the number in (FROM-ROW, FROM-COLUMN)
