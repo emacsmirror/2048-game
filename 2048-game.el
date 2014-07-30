@@ -392,7 +392,7 @@ and be completed at time TIME."
           *2048-history*)))
 
 (defun 2048-print-help ()
-  "Prints basic help text"
+  "Print basic help text."
   (insert "The goal is to create a tile with value 2048.
 Use the arrow keys, p/n/b/f, or C-p/C-n/C-b/C-f to move the tiles around.
 If a tile collides with another tile of the same value,
