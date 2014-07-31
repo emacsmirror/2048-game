@@ -461,7 +461,7 @@ Returns t if we were able to move; otherwise nil."
                                                 nil))
    (let ((has-moved nil))
      (dotimes (col *2048-columns*)
-       (dolist (row (- *2048-rows* 2) 0 -1)
+       (dolist (row (number-sequence (- *2048-rows* 2) 0 -1))
          (setq has-moved (or (2048-move row col 1 0)
                              has-moved))))
      (when has-moved
