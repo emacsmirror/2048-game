@@ -381,11 +381,11 @@ and be completed at time TIME."
     (let ((score-width (if (= 0 *2048-score*)
                            1
                          (ceiling (log10 *2048-score*)))))
-      (insert (format "%9s%s%s\n" "/" (make-string (+ 11
+      (insert (format "%10s%s%s\n" "/" (make-string (+ 9
                                                       score-width)
                                                    ?\=) "\\"))
-      (insert (format "%9s %s %s %d %s\n" "|" "Score:" "|" *2048-score* "|"))
-      (insert (format "%9s%s%s\n" "\\" (make-string (+ 11
+      (insert (format "%10s %s %d %s\n" "|" "Score:" *2048-score* "|"))
+      (insert (format "%10s%s%s\n" "\\" (make-string (+ 9
                                                        score-width)
                                                     ?\=) "/")))
     (insert "\n")
