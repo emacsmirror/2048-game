@@ -384,7 +384,10 @@ and be completed at time TIME."
     (insert "\n")
 
     ;; print score and history
-
+    (insert (format "%12s%s%s\n" "/" (make-string 13 ?\=) "\\"))
+    (insert (format "%26s\n" "| HIGH SCORES |"))
+    (insert (format "%12s%s%s\n" "\\" (make-string 13 ?\=) "/"))
+    (insert "\n")
     (insert (format "%8s %7s  %s\n" "Score" "Hi-Tile" "Date       Time"))
     (mapc #'(lambda (x)
               (insert (format "%8d %7d  %s\n"
