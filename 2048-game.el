@@ -376,7 +376,18 @@ and be completed at time TIME."
     (dotimes (col *2048-columns*)
       (insert "+-------"))
     (insert "+\n")
-    (insert (format "%8d\n" *2048-score*))
+    (insert "\n")
+
+    (let ((score-width (if (= 0 *2048-score*)
+                           1
+                         (ceiling (log10 *2048-score*)))))
+      (insert (format "%9s%s%s\n" "/" (make-string (+ 11
+                                                      score-width)
+                                                   ?\=) "\\"))
+      (insert (format "%9s %s %s %d %s\n" "|" "Score:" "|" *2048-score* "|"))
+      (insert (format "%9s%s%s\n" "\\" (make-string (+ 11
+                                                       score-width)
+                                                    ?\=) "/")))
     (insert "\n")
 
     (2048-print-help)
@@ -384,9 +395,9 @@ and be completed at time TIME."
     (insert "\n")
 
     ;; print score and history
-    (insert (format "%12s%s%s\n" "/" (make-string 13 ?\=) "\\"))
-    (insert (format "%26s\n" "| HIGH SCORES |"))
-    (insert (format "%12s%s%s\n" "\\" (make-string 13 ?\=) "/"))
+    (insert (format "%10s%s%s\n" "/" (make-string 13 ?\=) "\\"))
+    (insert (format "%24s\n" "| HIGH SCORES |"))
+    (insert (format "%10s%s%s\n" "\\" (make-string 13 ?\=) "/"))
     (insert "\n")
     (insert (format "%8s %7s  %s\n" "Score" "Hi-Tile" "Date       Time"))
     (mapc #'(lambda (x)
