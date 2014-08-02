@@ -408,9 +408,10 @@ and be completed at time TIME."
 (defun 2048-print-help ()
   "Print basic help text."
   (insert "The goal is to create a tile with value 2048.
-Use the arrow keys, p/n/b/f, or C-p/C-n/C-b/C-f to move the tiles around.
-If a tile collides with another tile of the same value,
-the tiles combine into a tile with double the initial value.\n"))
+Use the arrow keys, p/n/b/f, or C-p/C-n/C-b/C-f
+to move the tiles around.
+If two tiles of the same value collide, the tiles
+combine into a tile with twice the value.\n"))
 
 (defun 2048-move (from-row from-column delta-row delta-column)
   "Try to move the number in (FROM-ROW, FROM-COLUMN)
