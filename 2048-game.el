@@ -103,6 +103,9 @@ Instead of accessing this directly, use 2048-get-cell.")
 (defvar *2048-history* nil
   "Score history in this Emacs session.  Each element is (SCORE HI-TILE TIME).")
 
+(defvar *2048-history-size* 10
+  "Keep this many items in the history.")
+
 (defvar *2048-game-has-been-added-to-history* nil
   "Whether the current game has been added to the history yet.
 
@@ -293,12 +296,18 @@ That is, print zeros as empty strings, and all other numbers as themselves."
 
 This item should have score SCORE, the highest tile reached as HI-TILE,
 and be completed at time TIME."
-  (setq *2048-history* (cl-sort (cons (list *2048-score* *2048-hi-tile*
-                                          (format-time-string "%Y-%m-%d %H:%M:%S"
-                                                              (or time (current-time))))
-                                    *2048-history*)
-                              '>
-                              :key 'car)))
+  (setq *2048-history*
+        (let ((history-length (length *2048-history*)))
+          ;; get the history length before calling cl-sort because cl-sort is destructive.
+          (butlast (cl-sort (cons (list *2048-score* *2048-hi-tile*
+                                        (format-time-string "%Y-%m-%d %H:%M:%S"
+                                                            (or time (current-time))))
+                                  *2048-history*)
+                            '>
+                            :key 'car)
+                   (max 0
+                        (- (1+ history-length)
+                           *2048-history-size*))))))
 
 (defun 2048-game-was-won ()
   "Return t if the game was won, nil otherwise."
