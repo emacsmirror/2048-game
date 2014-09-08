@@ -412,7 +412,9 @@ and be completed at time TIME."
     (mapc #'(lambda (x)
               (insert (format "%8d %7d  %s\n"
                               (elt x 0) (elt x 1) (elt x 2))))
-          *2048-history*)))
+          *2048-history*)
+
+    (goto-char (point-min))))
 
 (defun 2048-print-help ()
   "Print basic help text."
