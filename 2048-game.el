@@ -53,7 +53,8 @@
   (define-key 2048-mode-map (kbd "<left>") '2048-left)
   (define-key 2048-mode-map (kbd "f") '2048-right)
   (define-key 2048-mode-map (kbd "C-f") '2048-right)
-  (define-key 2048-mode-map (kbd "<right>") '2048-right))
+  (define-key 2048-mode-map (kbd "<right>") '2048-right)
+  (define-key 2048-mode-map (kbd "r") '2048-random-move))
 
 ;;;###autoload
 (defun 2048-game () "Start playing 2048."
@@ -420,7 +421,8 @@ and be completed at time TIME."
   "Print basic help text."
   (insert "The goal is to create a tile with value 2048.
 Use the arrow keys, p/n/b/f, or C-p/C-n/C-b/C-f
-to move the tiles around.
+to move the tiles around. Press r to move randomly.
+
 If two tiles of the same value collide, the tiles
 combine into a tile with twice the value.\n"))
 
@@ -516,6 +518,14 @@ Returns t if we were able to move; otherwise nil."
                              has-moved))))
      (when has-moved
        (2048-insert-random-cell)))))
+
+(defun 2048-random-move ()
+  "Moves the board in a random direction.
+
+This may result in no changes to the board,
+if the move was the same as the last one."
+  (interactive)
+  (funcall (elt '(2048-left 2048-right 2048-up 2048-down) (random 4))))
 
 (provide '2048-game)
 ;;; 2048-game.el ends here
