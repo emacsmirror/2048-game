@@ -112,6 +112,9 @@ Instead of accessing this directly, use 2048-get-cell.")
 
 Right now, it's only for use when the game has been lost.  Since the user can choose to not start a new game, we want to add the score to the history the first time the game is lost, but not any other time.")
 
+(defvar *2048-game-epoch* nil
+  "The time the current game started.")
+
 ;; These are prefixed with "twentyfortyeight-face-", not "2048-face"
 ;; because face names starting with numbers break htmlfontify-buffer,
 ;; as CSS classes beginning with numbers are ignored.
@@ -203,8 +206,8 @@ This sets up both the tile to hold it, and the empty space around it."
                                   (length *2048-numbers*))
                                0)))
         (*2048-score* 123456)
-        (*2048-history* '((123  512 "2014-06-18 12:34:56")
-                          (456 1024 "2014-06-18 12:45:00"))))
+        (*2048-history* '((123  512 "2014-06-18 12:34:56" (0 30 0 0))
+                          (456 1024 "2014-06-18 12:45:00" (0 123 0 0)))))
     (switch-to-buffer "2048-test")
     (2048-init-tiles)
     (2048-mode)
@@ -220,6 +223,7 @@ This sets up both the tile to hold it, and the empty space around it."
         *2048-hi-tile* 2)
   (setq *2048-victory-value* *2048-default-victory-value*)
   (setq *2048-game-has-been-added-to-history* nil)
+  (setq *2048-game-epoch* (current-time))
   (2048-insert-random-cell)
   (2048-insert-random-cell)
   (2048-init-tiles)
@@ -280,29 +284,30 @@ That is, print zeros as empty strings, and all other numbers as themselves."
   (cond ((2048-game-was-won)
          (2048-print-board)
          (if (y-or-n-p "Yay! You beat the game!  y to start again; n to continue.  Start again? ")
-             (progn (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
+             (progn (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time) (time-subtract (current-time) *2048-game-epoch*))
                     (2048-init))
            (setq *2048-victory-value*
                  (* *2048-victory-value* 2))))
         ((2048-game-was-lost)
          (unless *2048-game-has-been-added-to-history*
-           (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time))
+           (2048-add-new-history-item *2048-score* *2048-hi-tile* (current-time) (time-subtract (current-time) *2048-game-epoch*))
            (setq *2048-game-has-been-added-to-history* t))
          (2048-print-board)
          (when (y-or-n-p "Aw, too bad.  You lost.  Want to play again? ")
            (2048-init)))))
 
-(defun 2048-add-new-history-item (score hi-tile time)
+(defun 2048-add-new-history-item (score hi-tile game-end-time game-duration)
   "Generate and add a new history item to the score list.
 
 This item should have score SCORE, the highest tile reached as HI-TILE,
-and be completed at time TIME."
+have ended at GAME-END-TIME, and have duration GAME-DURATION"
   (setq *2048-history*
         (let ((history-length (length *2048-history*)))
           ;; get the history length before calling cl-sort because cl-sort is destructive.
-          (butlast (cl-sort (cons (list *2048-score* *2048-hi-tile*
-                                        (format-time-string "%Y-%m-%d %H:%M:%S"
-                                                            (or time (current-time))))
+          (butlast (cl-sort (cons (list *2048-score*
+                                        *2048-hi-tile*
+                                        (format-time-string "%Y-%m-%d" game-end-time)
+                                        game-duration)
                                   *2048-history*)
                             '>
                             :key 'car)
@@ -409,10 +414,10 @@ and be completed at time TIME."
     (insert (format "%24s\n" "| HIGH SCORES |"))
     (insert (format "%10s%s%s\n" "\\" (make-string 13 ?\=) "/"))
     (insert "\n")
-    (insert (format "%8s %7s  %s\n" "Score" "Hi-Tile" "Date       Time"))
+    (insert (format "%8s  %7s  %7s     %4s\n" "Score" "Hi-Tile" "Date" "Duration"))
     (mapc #'(lambda (x)
-              (insert (format "%8d %7d  %s\n"
-                              (elt x 0) (elt x 1) (elt x 2))))
+              (insert (format "%8d  %7d  %10s  %s\n"
+                              (elt x 0) (elt x 1) (elt x 2) (format-time-string "%H:%M:%S" (elt x 3) t))))
           *2048-history*)
 
     (goto-char (point-min))))
