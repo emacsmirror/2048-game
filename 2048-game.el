@@ -525,7 +525,7 @@ Returns t if we were able to move; otherwise nil."
        (2048-insert-random-cell)))))
 
 (defun 2048-random-move ()
-  "Moves the board in a random direction.
+  "Move the board in a random direction.
 
 This may result in no changes to the board,
 if the move was the same as the last one."
