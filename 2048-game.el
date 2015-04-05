@@ -395,7 +395,7 @@ have ended at GAME-END-TIME, and have duration GAME-DURATION"
 
     (let ((score-width (if (= 0 *2048-score*)
                            1
-                         (ceiling (log10 *2048-score*)))))
+                         (ceiling (log *2048-score* 10)))))
       (insert (format "%10s%s%s\n" "/" (make-string (+ 9
                                                       score-width)
                                                    ?\=) "\\"))
