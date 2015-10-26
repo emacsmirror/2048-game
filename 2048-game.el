@@ -60,6 +60,7 @@
 (defun 2048-game () "Start playing 2048."
   (interactive)
   (switch-to-buffer "2048")
+  (buffer-disable-undo "2048")
   (2048-mode)
   (2048-init))
 
