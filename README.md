@@ -2,6 +2,8 @@
 
 This is an implementation of [2048](http://gabrielecirulli.github.io/2048/) in Emacs.
 
+It has a [bug tracker](https://todo.sr.ht/~zck/game-2048).
+
 ### Installing 2048-game.el ###
 
 There are two ways to install 2048-game.el:
